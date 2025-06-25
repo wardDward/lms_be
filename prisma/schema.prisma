@@ -16,7 +16,17 @@ datasource db {
 
 
 model User{
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  uuid     String    @default(uuid())
-  name     String
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  uuid          String    @default(uuid())
+  firstname     String
+  middlename    String?
+  lastname      String 
+  email         String    @unique
+  password      String
+  age           Int
+  birth_day     String
+  contact       String
+  gender        String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
 }
