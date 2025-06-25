@@ -24,7 +24,7 @@ model User{
   email         String    @unique
   password      String
   age           Int
-  birth_day     String
+  birth_day     DateTime
   contact       String
   gender        String
   created_at    DateTime @default(now())
