@@ -1,15 +1,22 @@
 import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 import errorHandler from './middleware/globalErrorhandler'
 import authRouter from './routes/auth.route'
 
 const app = express()
 const port = process.env.PORT || 8000
 
-app.use(cors())
+const corsOptions = {
+    credentials: true,
+    origin: ['http://localhost:5173']
+}
+
+app.use(cors(corsOptions))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
 
