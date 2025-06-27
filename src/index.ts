@@ -2,8 +2,11 @@ import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
+import dotenv from 'dotenv'
 import errorHandler from './middleware/globalErrorhandler'
 import authRouter from './routes/auth.route'
+
+dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 8000
