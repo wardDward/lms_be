@@ -38,4 +38,5 @@ model PersonalToken {
   user_id     String   @db.ObjectId 
   token       String   @unique
   created_at  DateTime @default(now())  
+  expired_at  DateTime @default(now())
 }
