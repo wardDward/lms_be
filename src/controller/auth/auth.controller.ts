@@ -1,5 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { PrismaClient } from "../../../generated/prisma";
 import { Request, Response } from "express";
 import { generateAccessToken, generateRefreshToken } from "../../utils/token";
@@ -37,24 +38,18 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     const data = req.body
 
     const user = await prisma.user.findUnique({
-        where: {
-            email: data.email
-        }
+        where: {email: data.email}
     })
 
     if (!user) {
-        res.status(401).json({
-            message: "Invalid credentials"
-        })
+        res.status(401).json({message: "Invalid credentials"})
         return
     }
 
     const checkedPassword = await bcrypt.compare(data.password, user.password)
 
     if (!checkedPassword) {
-        res.status(422).json({
-            message: "Invalid credentials"
-        })
+        res.status(422).json({message: "Invalid credentials"})
     }
 
     const accessToken = generateAccessToken(user)
@@ -63,7 +58,8 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     await prisma.personalToken.create({
         data: {
             user_id: user.id,
-            token: refreshToken
+            token: refreshToken,
+            expired_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         }
     })
 
@@ -74,4 +70,59 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     })
 
     res.json(accessToken)
+})
+
+
+export const refreshToken = expressAsyncHandler(async (req: Request, res: Response) => {
+    const oldToken = req.cookies.refreshToken
+
+    if (!oldToken) {
+        res.status(401).json({ message: 'Unauthorized' })
+        return
+    }
+
+    jwt.verify(oldToken, process.env.REFRESH_TOKEN!, async (err: any, decoded: any) => {
+        if (err || !decoded?.id) {
+            res.clearCookie('refreshToken')
+            return res.status(401).json({ message: 'Invalid token.' })
+        }
+
+        const tokenDoc = await prisma.personalToken.findFirst({
+            where: {
+                user_id: decoded.id,
+                token: oldToken
+            }
+        })
+
+        if (!tokenDoc) {
+            res.clearCookie('refreshToken')
+            return res.status(401).json({ message: 'refresh token cannot be found.' })
+        }
+
+        // check expiration
+        if (new Date() > tokenDoc.expired_at) {
+            await prisma.personalToken.delete({ where: { id: tokenDoc.id, } })
+            res.clearCookie('refreshToken')
+            return res.status(401).json({ message: 'refresh token expired.' })
+        }
+
+        const newAccessToken = generateAccessToken(decoded)
+        const newRefreshToken = generateRefreshToken(decoded)
+
+        await prisma.personalToken.create({
+            data: {
+                user_id: decoded.id,
+                token: newRefreshToken,
+                expired_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+            }
+        })
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        })
+
+        res.json(newAccessToken)
+    })
 })
