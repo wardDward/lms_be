@@ -63,6 +63,12 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         }
     })
 
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    })
+    
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,

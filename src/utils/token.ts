@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 // Generate a short-lived access token (5s for demo; ~15min for real apps)
 export const generateAccessToken = (user : any) => {
-    const access_token = jwt.sign( {id: user.id}, process.env.ACCESS_TOKEN!, {expiresIn: '5s'})   
+    const access_token = jwt.sign( {id: user.id}, process.env.ACCESS_TOKEN!, {expiresIn: '50s'})   
     return access_token
 }
 
