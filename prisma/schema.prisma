@@ -40,3 +40,11 @@ model PersonalToken {
   created_at  DateTime @default(now())  
   expired_at  DateTime @default(now())
 }
+
+
+model Role {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  created_at  DateTime @default(now())
+}
