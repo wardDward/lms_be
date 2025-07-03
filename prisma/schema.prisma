@@ -27,6 +27,8 @@ model User{
   birth_day     DateTime
   contact       String
   gender        String
+  role          Role     @relation(fields: [role_id], references: [id]) 
+  role_id       String   @unique @db.ObjectId 
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now())
   personal_token PersonalToken[]
@@ -44,7 +46,9 @@ model PersonalToken {
 
 model Role {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
+  uuid        String @default(uuid())
   name        String
   description String?
   created_at  DateTime @default(now())
+  user        User?
 }

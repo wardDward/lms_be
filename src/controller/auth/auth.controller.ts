@@ -25,7 +25,8 @@ export const register = expressAsyncHandler(async (req: Request, res: Response) 
         data: {
             ...data,
             password: hashedPassword,
-            birth_day: new Date(data.birth_day)
+            birth_day: new Date(data.birth_day),
+            role_id: "68655848ce9060512e41d140"
         }
     })
 
@@ -38,18 +39,18 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     const data = req.body
 
     const user = await prisma.user.findUnique({
-        where: {email: data.email}
+        where: { email: data.email }
     })
 
     if (!user) {
-        res.status(401).json({message: "Invalid credentials"})
+        res.status(401).json({ message: "Invalid credentials" })
         return
     }
 
     const checkedPassword = await bcrypt.compare(data.password, user.password)
 
     if (!checkedPassword) {
-        res.status(422).json({message: "Invalid credentials"})
+        res.status(422).json({ message: "Invalid credentials" })
     }
 
     const accessToken = generateAccessToken(user)
@@ -68,7 +69,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         secure: true,
         sameSite: 'none'
     })
-    
+
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
