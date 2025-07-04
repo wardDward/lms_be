@@ -55,18 +55,18 @@ model Role {
 }
 
 model Course {
-  id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  uuid       String  @default(uuid())
-  title      String
-  descriptio String
-  thumbnail  String?
-  user       User    @relation(fields: [user_id], references: [id])
-  user_id    String  @db.ObjectId
-  price      Float?
-  ratings    CourseRating[]
-  lessons    Lesson[]
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  uuid        String  @default(uuid())
+  title       String
+  description String
+  thumbnail   String?
+  user        User    @relation(fields: [user_id], references: [id])
+  user_id     String  @db.ObjectId
+  price       Float?
+  ratings     CourseRating[]
+  lessons     Lesson[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
 }
 
 model CourseRating{
