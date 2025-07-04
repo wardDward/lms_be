@@ -58,11 +58,13 @@ model Course {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   uuid       String  @default(uuid())
   title      String
+  descriptio String
   thumbnail  String?
   user       User    @relation(fields: [user_id], references: [id])
   user_id    String  @db.ObjectId
   price      Float?
-  rating     CourseRating[]
+  ratings    CourseRating[]
+  lessons    Lesson[]
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
 }
@@ -74,3 +76,27 @@ model CourseRating{
   course_id   String    @db.ObjectId
   created_at  DateTime  @default(now())
 }
+
+
+model Lesson{
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  course      Course  @relation(fields: [course_id], references: [id])
+  course_id   String  @db.ObjectId
+  chapter     String?
+  title       String
+  description String?
+  content     String
+  attachments MediaAttachments[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+}
+
+type MediaAttachments{
+  order     Int   //for sorting purposes
+  url       String?
+  duration  String
+  title     String?
+  media     String
+}
+
+
