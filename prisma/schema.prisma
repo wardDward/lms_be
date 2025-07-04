@@ -16,22 +16,23 @@ datasource db {
 
 
 model User{
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  uuid          String    @default(uuid())
-  firstname     String
-  middlename    String?
-  lastname      String 
-  email         String    @unique
-  password      String
-  age           Int
-  birth_day     DateTime
-  contact       String
-  gender        String
-  role          Role     @relation(fields: [role_id], references: [id]) 
-  role_id       String   @unique @db.ObjectId 
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now())
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  uuid           String    @default(uuid())
+  firstname      String
+  middlename     String?
+  lastname       String 
+  email          String    @unique
+  password       String
+  age            Int
+  birth_day      DateTime
+  contact        String
+  gender         String
+  role           Role     @relation(fields: [role_id], references: [id]) 
+  role_id        String   @unique @db.ObjectId 
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
   personal_token PersonalToken[]
+  courses        Course[]
 }
 
 model PersonalToken {
@@ -51,4 +52,13 @@ model Role {
   description String?
   created_at  DateTime @default(now())
   user        User?
+}
+
+model Course {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  uuid      String  @default(uuid())
+  title     String
+  thumbnail String?
+  user      User    @relation(fields: [user_id], references: [id])
+  user_id   String  @db.ObjectId
 }
