@@ -8,7 +8,6 @@ const prisma = new PrismaClient()
 export const createCourse = expressAsyncHandler(async(req: Request, res: Response) => {
     const data = req.body
 
-    //create posts
     const course = await prisma.course.create({
         data: {
             ...data,
@@ -17,7 +16,5 @@ export const createCourse = expressAsyncHandler(async(req: Request, res: Respons
             }
         }
     })
-
-
     res.json(course)
 })
