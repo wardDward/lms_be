@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { z } from 'zod'
 
 
+// registration
 const registrationSchema = z.object({
     firstname: z.string().min(1, 'Firstname is required').max(100, 'Firstname is maximun of 100 characters only').regex(/^[a-zA-Z0-9]+$/, 'Symbols are not allowed'),
     lastname: z.string().min(1, 'Lastname is required').max(100, 'Lastname is maximun of 100 characters only').regex(/^[a-zA-Z0-9]+$/, 'Symbols are not allowed'),
@@ -14,7 +15,6 @@ const registrationSchema = z.object({
     gender: z.string().min(1, 'Gender is required')
 })
 
-
 export const registrationValidation = (req: Request, res: Response, next: NextFunction) => {
     const result = registrationSchema.safeParse(req.body)
 
@@ -25,5 +25,23 @@ export const registrationValidation = (req: Request, res: Response, next: NextFu
     }
     req.body = result.data
     next()
+}
 
+// login
+const loginSchema = z.object({
+    email: z.string().min(1, 'Email is required').email(),
+    password: z.string().min(1, 'Password is required')
+})
+
+export const loginValidation = (req: Request, res: Response, next: NextFunction) => {
+    const result = loginSchema.safeParse(req.body)
+
+    if(!result.success){
+        res.status(422).json({
+            errors: result.error.flatten().fieldErrors
+        })
+    }
+
+    req.body = result.data
+    next()
 }
