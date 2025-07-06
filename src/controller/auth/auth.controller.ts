@@ -39,7 +39,14 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     const data = req.body
 
     const user = await prisma.user.findUnique({
-        where: { email: data.email }
+        where: { email: data.email },
+        include: {
+            role: {
+                select: {
+                    name: true
+                }
+            }
+        }
     })
 
     if (!user) {
