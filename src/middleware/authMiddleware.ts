@@ -1,13 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
@@ -23,7 +16,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
        res.status(403).json({ message: "Forbidden" });
        return
     }
-
+    // res.json(decoded)
     req.user = decoded;
     next();
   });
