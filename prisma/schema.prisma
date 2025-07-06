@@ -16,87 +16,89 @@ datasource db {
 
 
 model User{
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  uuid           String    @default(uuid())
-  firstname      String
-  middlename     String?
-  lastname       String 
-  email          String    @unique
-  password       String
-  age            Int
-  birth_day      DateTime
-  contact        String
-  gender         String
-  role           Role     @relation(fields: [role_id], references: [id]) 
-  role_id        String   @unique @db.ObjectId 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @default(now())
-  personal_token PersonalToken[]
-  courses        Course[]
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  uuid              String    @default(uuid())
+  firstname         String
+  middlename        String?
+  lastname          String 
+  email             String    @unique
+  password          String
+  age               Int
+  birth_day         DateTime
+  contact           String
+  gender            String
+  role              Role     @relation(fields: [role_id], references: [id]) 
+  role_id           String   @unique @db.ObjectId 
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now())
+  personal_token    PersonalToken[]
+  courses           Course[]
 }
 
 model PersonalToken {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  user        User     @relation(fields: [user_id], references: [id])
-  user_id     String   @db.ObjectId 
-  token       String   @unique
-  created_at  DateTime @default(now())  
-  expired_at  DateTime @default(now())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  user              User     @relation(fields: [user_id], references: [id])
+  user_id           String   @db.ObjectId 
+  token             String   @unique
+  created_at        DateTime @default(now())  
+  expired_at        DateTime @default(now())
 }
 
 
 model Role {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  uuid        String @default(uuid())
-  name        String
-  description String?
-  created_at  DateTime @default(now())
-  user        User?
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  uuid             String @default(uuid())
+  name             String
+  description      String?
+  created_at       DateTime @default(now())
+  user             User?
 }
 
 model Course {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  uuid        String  @default(uuid())
-  title       String
-  description String?
-  thumbnail   String?
-  user        User    @relation(fields: [user_id], references: [id])
-  user_id     String  @db.ObjectId
-  price       Float?
-  ratings     CourseRating[]
-  lessons     Lesson[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  uuid            String  @default(uuid())
+  title           String
+  description     String?
+  thumbnail       String?
+  user            User    @relation(fields: [user_id], references: [id])
+  user_id         String  @db.ObjectId
+  price           Float?
+  is_published    Boolean @default(false)
+  ratings         CourseRating[]
+  lessons         Lesson[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  deleted_at      DateTime?
 }
 
 model CourseRating{
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  uuid        String    @default(uuid())
-  course      Course    @relation(fields: [course_id], references: [id])
-  course_id   String    @db.ObjectId
-  created_at  DateTime  @default(now())
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  uuid            String    @default(uuid())
+  course          Course    @relation(fields: [course_id], references: [id])
+  course_id       String    @db.ObjectId
+  created_at      DateTime  @default(now())
 }
 
 
 model Lesson{
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  course      Course  @relation(fields: [course_id], references: [id])
-  course_id   String  @db.ObjectId
-  chapter     String?
-  title       String
-  description String?
-  content     String
-  attachments MediaAttachments[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  course          Course  @relation(fields: [course_id], references: [id])
+  course_id       String  @db.ObjectId
+  chapter         String?
+  title           String
+  description     String?
+  content         String
+  attachments     MediaAttachments[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
 }
 
 type MediaAttachments{
-  order     Int   //for sorting purposes
-  url       String?
-  duration  String
-  title     String?
-  media     String
+  order           Int   //for sorting purposes
+  url             String?
+  duration        String
+  title           String?
+  media           String
 }
 
 
