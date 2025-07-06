@@ -5,14 +5,26 @@ import { Request, Response } from "express";
 const prisma = new PrismaClient()
 
 
-export const createCourse = expressAsyncHandler(async(req: Request, res: Response) => {
+export const getCourses = expressAsyncHandler(async (req: Request, res: Response) => {
+    const courses = await prisma.course.findMany({
+        where: {
+            deleted_at: null
+        },
+        
+    })
+
+    res.status(200).json({courses})
+})
+
+export const createCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const data = req.body
 
     const course = await prisma.course.create({
         data: {
             ...data,
+            deleted_at: null,
             user: {
-                connect:{id: "68655a53a175ce922ee14f97"}
+                connect: { id: "68655a53a175ce922ee14f97" }
             }
         }
     })

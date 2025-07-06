@@ -4,7 +4,8 @@ import { z } from 'zod'
 
 const createCourseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
-    description: z.string().transform((val) => val === "" ? null : val).nullable()
+    description: z.string().transform((val) => val === "" ? null : val).nullable(),
+    thumbnail: z.string().transform((val) => val === ""? null : val).nullable(),
 })
 
 
