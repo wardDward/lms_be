@@ -24,7 +24,7 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
             ...data,
             deleted_at: null,
             user: {
-                connect: { id: "68655a53a175ce922ee14f97" }
+                connect: { id: req.user.id }
             }
         }
     })

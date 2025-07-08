@@ -1,7 +1,6 @@
-import { loginValidation } from './../middleware/validation/auth/auth';
 import { Router } from "express"
 import { login, refreshToken, register } from "../controller/auth/auth.controller"
-import { registrationValidation } from "../middleware/validation/auth/auth"
+import { loginValidation, registrationValidation } from "../middleware/validation/auth/auth"
 
 
 const authRouter = Router()
