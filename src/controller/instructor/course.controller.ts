@@ -10,10 +10,10 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
         where: {
             deleted_at: null
         },
-        
+
     })
 
-    res.status(200).json({courses})
+    res.status(200).json({ courses })
 })
 
 export const createCourse = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -30,3 +30,8 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
     })
     res.json(course)
 })
+export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const course = await prisma.course.delete({ where: { id } });
+    res.json(course);
+});

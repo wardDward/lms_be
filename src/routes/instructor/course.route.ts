@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createCourse, getCourses } from "../../controller/instructor/course.controller";
+import { createCourse, deleteCourse, getCourses } from "../../controller/instructor/course.controller";
 import { validateCourse } from "../../middleware/validation/instructor/course";
 import { role_guard } from "../../middleware/roleGuard";
 import { authMiddleware } from "../../middleware/authMiddleware";
@@ -11,5 +11,7 @@ courseRouter.use([authMiddleware, role_guard('learner')])
 courseRouter.route('/')
     .get(getCourses)
     .post(validateCourse, createCourse)
+
+courseRouter.route('/:id').delete(deleteCourse)
 
 export default courseRouter
