@@ -22,16 +22,28 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
     const course = await prisma.course.create({
         data: {
             ...data,
-            deleted_at: null,
             user: {
                 connect: { id: req.user.id }
-            }
-        }
+            },
+            lessons: data.lessons.map((lesson: any) => ({
+                chapter: lesson.chapter,
+                title: lesson.title,
+                description: lesson.description,
+                content: lesson.content,
+                attachments: lesson.attachments.map((attachment: any) => ({
+                    order: attachment.order,
+                    media: attachment.media,
+                }))
+            }))
+        },
     })
+
     res.json(course)
 })
+
 export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const course = await prisma.course.delete({ where: { id } });
     res.json(course);
 });
+
