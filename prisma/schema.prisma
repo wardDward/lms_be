@@ -80,13 +80,10 @@ model CourseRating{
 }
 
 
-model Lesson{
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  course          Course        @relation(fields: [course_id], references: [id])
-  course_id       String        @db.ObjectId
-  chapter         String?
+type Lesson{
+  uuid            String        @default(uuid())
+  chapter         Int?
   title           String
-  description     String?
   content         String
   attachments     MediaAttachments[]
   created_at      DateTime      @default(now())
@@ -94,10 +91,8 @@ model Lesson{
 }
 
 type MediaAttachments{
+  uuid            String @default(uuid())
   order           Int   //for sorting purposes
-  url             String?
-  duration        String
-  title           String?
   media           String
 }
 
