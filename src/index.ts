@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
-app.use('/api/course', InstructorCourse)
+app.use('/api/courses', InstructorCourse)
 
 app.use(errorHandler)
 app.listen(port, () => {
