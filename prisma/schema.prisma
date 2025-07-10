@@ -80,8 +80,12 @@ model CourseRating{
 }
 
 
-type Lesson{
+model Lesson{
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
   uuid            String        @default(uuid())
+  course_id        String        @db.ObjectId
+  course          Course        @relation(fields: [course_id], references: [id])
+  lesson_number   Int
   chapter         Int?
   title           String
   content         String
