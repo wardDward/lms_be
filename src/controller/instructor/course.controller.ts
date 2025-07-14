@@ -23,20 +23,13 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
         data: {
             ...data,
             user: {
-                connect: { id: req.user.id }
+                connect: {user: {id: req.user.id},}
             },
-            lessons: data.lessons.map((lesson: any) => ({
-                chapter: lesson.chapter,
-                title: lesson.title,
-                description: lesson.description,
-                content: lesson.content,
-                attachments: lesson.attachments.map((attachment: any) => ({
-                    order: attachment.order,
-                    media: attachment.media,
-                }))
-            }))
+
         },
     })
+
+    // create lessons
 
     res.json(course)
 })
