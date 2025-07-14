@@ -4,8 +4,7 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import errorHandler from './middleware/globalErrorhandler'
-import authRouter from './routes/auth.route'
-import { default as InstructorCourse } from './routes/instructor/course.route'
+import apiRouter from './routes/api'
 
 dotenv.config()
 
@@ -22,8 +21,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.use('/api/auth', authRouter)
-app.use('/api/courses', InstructorCourse)
+app.use('/api', apiRouter)
 
 app.use(errorHandler)
 app.listen(port, () => {
