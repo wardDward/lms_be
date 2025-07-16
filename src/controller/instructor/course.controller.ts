@@ -21,17 +21,39 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
 
     const course = await prisma.course.create({
         data: {
-            ...data,
+            title: data.title,
+            description: data.description ?? null,
+            thumbnail: data.thumbnail ?? null,
+            price: data.price ?? null,
+            is_published: data.is_published,
             user: {
-                connect: {user: {id: req.user.id},}
+                connect: { id: req.user.id }
             },
 
         },
     })
 
-    // create lessons
+    const lesseonCreateInput = data.lessons?.map((lesson:any) => {
+        return prisma.lesson.create({
+            data: {
+                lesson_number: lesson.lesson_number,
+                chapter: lesson.chapter,
+                title: lesson.title,
+                content: lesson.content,
+                attachments: lesson.attachments?.length ? lesson.attachments : null,
+                course: {
+                    connect: { id: course.id }
+                }
+            }
+        });
+    })
 
-    res.json(course)
+    const lessons = await prisma.$transaction(lesseonCreateInput)
+    
+    res.json({
+        course,
+        lessons
+    })
 })
 
 export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
