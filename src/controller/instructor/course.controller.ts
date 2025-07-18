@@ -9,8 +9,7 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
     const courses = await prisma.course.findMany({
         where: {
             deleted_at: null
-        },
-
+        }
     })
 
     res.status(200).json({ courses })
@@ -26,6 +25,7 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
             thumbnail: data.thumbnail ?? null,
             price: data.price ?? null,
             is_published: data.is_published,
+            deleted_at: null,
             user: {
                 connect: { id: req.user.id }
             },
@@ -33,7 +33,7 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
         },
     })
 
-    const lesseonCreateInput = data.lessons?.map((lesson:any) => {
+    const lesseonCreateInput = data.lessons?.map((lesson: any) => {
         return prisma.lesson.create({
             data: {
                 lesson_number: lesson.lesson_number,
@@ -49,7 +49,7 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
     })
 
     const lessons = await prisma.$transaction(lesseonCreateInput)
-    
+
     res.json({
         course,
         lessons
