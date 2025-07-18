@@ -2,7 +2,24 @@ import { Response, Request, NextFunction } from "express";
 import { z } from 'zod'
 
 
-const createCourseSchema = z.object({
+
+
+const lessonSchema = z.object({
+    title: z.string().min(1, 'Lesson title is required'),
+    lesson_number: z.number().min(1, 'lesson number is required'),
+    chapter: z.number().optional(),
+    content: z.string().min(1, 'content is required'),
+    attachments: z.array(
+        z.object({
+            order: z.number().min(1, 'attachment order is required'),
+            attachment_name: z.string().min(1, 'attachment name is required'),
+            attachment: z.string().min(1, 'attachment is required')
+        })
+    ).optional()
+
+})
+
+const courseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().transform((val) => val === "" ? null : val).nullable(),
     thumbnail: z.string().transform((val) => val === "" ? null : val).nullable(),
@@ -11,28 +28,13 @@ const createCourseSchema = z.object({
         z.number().min(0, 'Price must be a positive number').default(0)
     ),
     is_published: z.boolean().default(false),
-    lessons: z.array(z.object({
-        chapter: z.preprocess(
-            (val) => val === "" ? null : val,
-            z.number().nullable()
-        ),
-        title: z.string().min(1, 'Title is required'),
-        content: z.string().transform((val) => val === "" ? null : val).nullable(),
-        attachments: z.array(z.object({
-            order: z.preprocess(
-                (val) => {
-                    if (val === "" || val === null || val === undefined) return undefined;
-                    return typeof val === "string" ? parseInt(val) : val;
-                },
-                z.number({ required_error: "Order is required" }).min(1, 'Order must be at least 1')
-            ),
-            media: z.string().min(1, 'Media is required')
-        }))
-    }))
+    lessons: z.array(lessonSchema)
+
 })
 
+
 export const validateCourse = (req: Request, res: Response, next: NextFunction) => {
-    const result = createCourseSchema.safeParse(req.body)
+    const result = courseSchema.safeParse(req.body)
 
     if (!result.success) {
         res.status(422).json({

@@ -97,7 +97,9 @@ model Lesson{
 type MediaAttachments{
   uuid            String @default(uuid())
   order           Int   //for sorting purposes
-  media           String
+  attachment      String
+  attachment_name String
+    
 }
 
 
