@@ -67,7 +67,7 @@ model Course {
   ratings           CourseRating[]
   lessons           Lesson[]
   created_at        DateTime      @default(now())
-  updated_at        DateTime      @default(now())
+  updated_at        DateTime      @default(now()) @updatedAt
   deleted_at        DateTime?
   
 }
