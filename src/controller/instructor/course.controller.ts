@@ -79,14 +79,15 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
 export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
+    try {
+        await prisma.course.findUniqueOrThrow({ where: { id } });
 
-    const course = await prisma.course.findUnique({ where: { id } });
-
-    if (!course) {
-        res.status(404).json({error: "Course not found"});
+        const deletedCourse = await prisma.course.delete({ where: { id } });
+        res.json(deletedCourse);
+    } catch (error) {
+        res.status(404).json({ message: 'Course not found.' });
     }
 
 
-    const deletedCourse = await prisma.course.delete({ where: { id } });
-    res.json(deletedCourse);
+
 });
