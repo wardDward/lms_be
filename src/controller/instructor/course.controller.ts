@@ -87,7 +87,4 @@ export const deleteCourse = expressAsyncHandler(async (req: Request, res: Respon
     } catch (error) {
         res.status(404).json({ message: 'Course not found.' });
     }
-
-
-
 });
