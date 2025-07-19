@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import { PrismaClient } from "../../../generated/prisma";
 import { Request, Response } from "express";
 import { normalizeMongoDoc } from "../../utils/normalizeMongoDoc";
+import { createLesson } from "../../services/lessons/lessonServices";
 
 const prisma = new PrismaClient()
 
@@ -67,22 +68,7 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
         },
     })
 
-    const lesseonCreateInput = data.lessons?.map((lesson: any) => {
-        return prisma.lesson.create({
-            data: {
-                lesson_number: lesson.lesson_number,
-                chapter: lesson.chapter,
-                title: lesson.title,
-                content: lesson.content,
-                attachments: lesson.attachments?.length ? lesson.attachments : null,
-                course: {
-                    connect: { id: course.id }
-                }
-            }
-        });
-    })
-
-    const lessons = await prisma.$transaction(lesseonCreateInput)
+    const lessons = await createLesson(data.lessons, course.id)
 
     res.json({
         course,
