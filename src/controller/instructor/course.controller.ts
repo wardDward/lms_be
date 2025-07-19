@@ -30,8 +30,9 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
                 {
                     $match: {
                         deleted_at: null
-                    }
-                }
+                    },
+                },
+               
             ]
         });
 
@@ -42,7 +43,7 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
     const courses = await prisma.course.findMany({
         where: {
             deleted_at: null
-        }
+        },
     })
 
     res.status(200).json(courses)
