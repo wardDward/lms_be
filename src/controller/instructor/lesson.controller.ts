@@ -18,7 +18,6 @@ export const updateLesson = expressAsyncHandler(async (req: Request, res: Respon
         where: { id },
         data: {
             lesson_number: data.lesson_number,
-            chapter: data.chapter ?? null,
             title: data.title,
             content: data.content,
             

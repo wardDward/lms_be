@@ -7,16 +7,7 @@ import { z } from 'zod'
 const lessonSchema = z.object({
     title: z.string().min(1, 'Lesson title is required'),
     lesson_number: z.number().min(1, 'lesson number is required'),
-    chapter: z.number().optional(),
     content: z.string().min(1, 'content is required'),
-    attachments: z.array(
-        z.object({
-            order: z.number().min(1, 'attachment order is required'),
-            attachment_name: z.string().min(1, 'attachment name is required'),
-            attachment: z.string().min(1, 'attachment is required')
-        })
-    ).optional()
-
 })
 
 const courseSchema = z.object({
