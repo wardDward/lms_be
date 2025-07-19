@@ -14,7 +14,7 @@ export const normalizeMongoDoc = (doc: any): any => {
             if (value && typeof value === "object") {
                 // if value is $oid take its value
                 if ("$oid" in value) {
-                    newDoc[key] = value["$oid"];
+                    newDoc['id'] = value["$oid"];
                     // if value is $date convert it to new Date
                 } else if ("$date" in value) {
                     newDoc[key] = new Date(value["$date"]);
@@ -26,10 +26,10 @@ export const normalizeMongoDoc = (doc: any): any => {
                 newDoc[key] = value;
             }
         }
-
+        // for normzalided 
         return newDoc;
     }
-
+    // return as is
     return doc;
 }
 
