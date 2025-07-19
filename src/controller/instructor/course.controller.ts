@@ -33,7 +33,7 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
                         deleted_at: null
                     },
                 },
-               
+
             ]
         });
 
@@ -78,7 +78,15 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
 
 export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const course = await prisma.course.delete({ where: { id } });
-    res.json(course);
-});
 
+
+    const course = await prisma.course.findUnique({ where: { id } });
+
+    if (!course) {
+        res.status(404).json({error: "Course not found"});
+    }
+
+
+    const deletedCourse = await prisma.course.delete({ where: { id } });
+    res.json(deletedCourse);
+});
