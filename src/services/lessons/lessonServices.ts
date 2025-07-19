@@ -4,7 +4,6 @@ import { PrismaClient } from "../../../generated/prisma";
 const prisma = new PrismaClient()
 
 export const createLesson = async(lessons: any[], courseId: string) => {
-    console.log('test lessson service')
     const lessonInputs = lessons?.map((lesson: any) => {
         return prisma.lesson.create({
             data: {
