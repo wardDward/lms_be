@@ -2,7 +2,6 @@ import expressAsyncHandler from "express-async-handler";
 import { PrismaClient } from "../../../generated/prisma";
 import { Request, Response } from "express";
 import { normalizeMongoDoc } from "../../utils/normalizeMongoDoc";
-import { createLesson } from "../../services/lessons/lessonServices";
 
 const prisma = new PrismaClient()
 
@@ -68,11 +67,10 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
         },
     })
 
-    const lessons = await createLesson(data.lessons, course.id)
+    // create lesson if has
 
     res.json({
         course,
-        lessons
     })
 })
 
