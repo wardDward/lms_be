@@ -69,10 +69,10 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
     })
 
     let lessons;
-    if(data.lessons.length > 0){
+    if (data.lessons.length > 0) {
         lessons = await createLeasons(data.lessons, course.id)
     }
-    
+
     res.json({
         course,
         lessons
