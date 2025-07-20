@@ -80,6 +80,8 @@ model CourseRating {
   course     Course   @relation(fields: [course_id], references: [id])
   course_id  Int
   created_at DateTime @default(now())
+
+  @@map("tbl_course_ratings")
 }
 
 model Lesson {
