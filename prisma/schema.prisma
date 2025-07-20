@@ -10,96 +10,101 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             Int             @id @default(autoincrement())
+  uuid           String          @unique @default(uuid())
+  firstname      String
+  middlename     String?
+  lastname       String
+  email          String          @unique
+  password       String
+  age            Int
+  birth_day      DateTime
+  contact        String
+  gender         String
+  role_id        Int
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @default(now())
+  personal_token PersonalToken[]
+  courses        Course[]
 
-model User{
-  id                String      @id @default(auto()) @map("_id") @db.ObjectId
-  firstname         String     
-  middlename        String?
-  lastname          String 
-  email             String      @unique
-  password          String
-  age               Int
-  birth_day         DateTime
-  contact           String
-  gender            String
-  role              Role        @relation(fields: [role_id], references: [id]) 
-  role_id           String      @unique @db.ObjectId 
-  created_at        DateTime    @default(now())
-  updated_at        DateTime    @default(now())
-  personal_token    PersonalToken[]
-  courses           Course[]
+  @@map("tbl_users")
 }
 
 model PersonalToken {
-  id                String      @id @default(auto()) @map("_id") @db.ObjectId
-  user              User        @relation(fields: [user_id], references: [id])
-  user_id           String      @db.ObjectId 
-  token             String      @unique
-  created_at        DateTime    @default(now())  
-  expired_at        DateTime    @default(now())
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  token      String   @unique
+  created_at DateTime @default(now())
+  expired_at DateTime @default(now())
+
+  @@map("tbl_personal_tokens")
 }
 
-
 model Role {
-  id                String       @id @default(auto()) @map("_id") @db.ObjectId
-  uuid              String       @default(uuid())
-  name              String
-  description       String?
-  created_at        DateTime     @default(now())
-  user              User?
+  id          Int      @id @default(autoincrement())
+  uuid        String   @default(uuid())
+  name        String
+  description String?
+  created_at  DateTime @default(now())
+
+  @@map("tbl_roles")
 }
 
 model Course {
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  uuid              String        @default(uuid())
-  title             String
-  description       String?      
-  thumbnail         String?
-  user              User          @relation(fields: [user_id], references: [id])
-  user_id           String        @db.ObjectId
-  price             Float?
-  is_published      Boolean       @default(false)
-  ratings           CourseRating[]
-  lessons           Lesson[]
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @default(now()) @updatedAt
-  deleted_at        DateTime?
+  id           Int            @id @default(autoincrement())
+  uuid         String         @default(uuid())
+  title        String
+  description  String?
+  thumbnail    String?
+  user         User           @relation(fields: [user_id], references: [id])
+  user_id      Int
+  price        Float?
+  is_published Boolean        @default(false)
+  ratings      CourseRating[]
+  lessons      Lesson[]
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @default(now()) @updatedAt
+  deleted_at   DateTime?
+
+  @@map("tbl_courses")
+}
+
+model CourseRating {
+  id         Int   @id @default(autoincrement())
+  course     Course   @relation(fields: [course_id], references: [id])
+  course_id  Int
+  created_at DateTime @default(now())
+}
+
+model Lesson {
+  id            Int                @id @default(autoincrement())
+  course_id     Int             
+  course        Course             @relation(fields: [course_id], references: [id])
+  lesson_number Int
+  title         String
+  content       String
+  attachments   MediaAttachments[]
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @default(now())
+
+  @@map("tbl_lessons")
+}
+
+model MediaAttachments {
+  id         Int      @id @default(autoincrement())
+  lesson_id  Int
+  lesson     Lesson   @relation(fields: [lesson_id], references: [id])
+  order      Int //for sorting purposes
+  path       String
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
   
+  @@map("tbl_media_attachments")
 }
-
-model CourseRating{
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  course            Course        @relation(fields: [course_id], references: [id])
-  course_id         String        @db.ObjectId
-  created_at        DateTime      @default(now())
-}
-
-
-model Lesson{
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  course_id        String        @db.ObjectId
-  course           Course        @relation(fields: [course_id], references: [id])
-  lesson_number    Int
-  title            String
-  content          String
-  attachments      MediaAttachments[]
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @default(now())
-}
-
-model MediaAttachments{
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  lesson_id       String      @db.ObjectId
-  lesson          Lesson      @relation(fields: [lesson_id], references: [id])
-  order           Int   //for sorting purposes
-  path            String
-  name            String
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @default(now()) @updatedAt
-}
-
-
