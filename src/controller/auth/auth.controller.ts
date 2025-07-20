@@ -10,7 +10,7 @@ const prisma = new PrismaClient()
 
 export const register = expressAsyncHandler(async (req: Request, res: Response) => {
 
-    const {role: _role, ...userData} = req.body
+    const {role_uuid: _role, ...userData} = req.body
     const existEmail = await prisma.user.findUnique({
         where: { email: userData.email }
     })
@@ -62,8 +62,8 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         res.status(422).json({ message: "Invalid credentials" })
     }
 
-    const accessToken = generateAccessToken(user)
-    const refreshToken = generateRefreshToken(user)
+    const accessToken = generateAccessToken(user.id)
+    const refreshToken = generateRefreshToken(user.id)
 
     await prisma.personalToken.create({
         data: {
@@ -84,7 +84,6 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         secure: true,
         sameSite: 'none'
     })
-
     res.json(accessToken)
 })
 
