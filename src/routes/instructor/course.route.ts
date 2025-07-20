@@ -10,7 +10,7 @@ const courseRouter = Router()
 courseRouter.use([authMiddleware, role_guard('instructor')])
 courseRouter.route('/')
     .get(getCourses)
-    .post(validateCourse, createCourse)
+    .post(createCourse)
 
 courseRouter.route('/:id').delete(deleteCourse).put(updateCourse)
 
