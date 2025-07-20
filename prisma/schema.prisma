@@ -98,6 +98,8 @@ model MediaAttachments{
   order           Int   //for sorting purposes
   path            String
   name            String
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now()) @updatedAt
 }
 
 
