@@ -10,23 +10,32 @@ const prisma = new PrismaClient()
 
 export const register = expressAsyncHandler(async (req: Request, res: Response) => {
 
-    const data = req.body
-
+    const {role: _role, ...userData} = req.body
     const existEmail = await prisma.user.findUnique({
-        where: { email: data.email }
+        where: { email: userData.email }
     })
 
     if (existEmail) {
         throw new Error('Email is already exists.')
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10)
+    const roleExists = await prisma.role.findFirst({
+        where: {
+            uuid: _role
+        }
+    })
+    
+    if(!roleExists){
+        res.status(404).json({errors: "Role not found"})
+    }
+
+    const hashedPassword = await bcrypt.hash(userData.password, 10)
     const user = await prisma.user.create({
         data: {
-            ...data,
+            ...userData,
             password: hashedPassword,
-            birth_day: new Date(data.birth_day),
-            role_id: "68655848ce9060512e41d140"
+            birth_day: new Date(userData.birth_day),
+            role_id: roleExists?.id
         }
     })
 
@@ -40,9 +49,6 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
     const user = await prisma.user.findUnique({
         where: { email: data.email },
-        include: {
-            role: true
-        }
     })
 
     if (!user) {

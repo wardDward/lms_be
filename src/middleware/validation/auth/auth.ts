@@ -12,7 +12,8 @@ const registrationSchema = z.object({
     contact: z.string().min(1, 'Contact number is required'),
     age: z.number().min(1, 'Age is required'),
     birth_day: z.coerce.date(),
-    gender: z.string().min(1, 'Gender is required')
+    gender: z.string().min(1, 'Gender is required'),
+    role: z.string().min(1, 'Role is required')
 })
 
 export const registrationValidation = (req: Request, res: Response, next: NextFunction) => {
