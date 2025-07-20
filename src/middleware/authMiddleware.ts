@@ -1,23 +1,57 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { PrismaClient } from "../../generated/prisma";
 
+const prisma = new PrismaClient();
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+type CustomJwtPayload = {
+  sub: number;
+};
+
+export const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-     res.status(401).json({ error: "Unauthorized" });
-     return
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN!, (err, decoded) => {
-    if (err) {
-       res.status(403).json({ message: "Forbidden" });
-       return
+  jwt.verify(token, process.env.ACCESS_TOKEN!, async (err, decoded: unknown) => {
+    if (err || !decoded || typeof decoded !== "object" || !("sub" in decoded)) {
+      return res.status(403).json({ message: "Forbidden" });
     }
-    // res.json(decoded)
-    req.user = decoded;
-    next();
+
+    const { sub } = decoded as CustomJwtPayload;
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: sub },
+      });
+
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      const role = await prisma.role.findUnique({
+        where: { id: user.role_id },
+        select: {
+          name: true,
+        },
+      });
+
+      const userWithRole = {
+        ...user,
+        role,
+      };
+
+      req.user = userWithRole;
+      next();
+    } catch (error) {
+      console.error("Authmiddleware error:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
   });
 };
