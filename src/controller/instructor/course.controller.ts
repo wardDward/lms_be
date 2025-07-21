@@ -4,16 +4,24 @@ import expressAsyncHandler from "express-async-handler";
 
 
 const prisma = new PrismaClient()
-
 export const getCourses = expressAsyncHandler(async (req: Request, res: Response) => {
-    const courses = await prisma.course.findMany()
+    const search = req.query.search as string | undefined;
 
-    res.json(courses)
-})
+    const courses = await prisma.course.findMany({
+        where: search ? {
+                title: {
+                    contains: search,
+                },
+            }
+            : undefined,
+    });
+
+    res.json(courses);
+});
 
 export const createCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const data = req.body
-    
+
     const course = await prisma.course.create({
         data: {
             title: data.title,
