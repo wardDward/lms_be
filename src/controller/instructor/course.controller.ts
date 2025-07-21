@@ -8,11 +8,12 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
     const search = req.query.search as string | undefined;
 
     const courses = await prisma.course.findMany({
+        
         where: search ? {
-                title: {
-                    contains: search,
-                },
-            }
+            title: {
+                contains: search,
+            },
+        }
             : undefined,
     });
 
@@ -41,5 +42,25 @@ export const updateCourse = expressAsyncHandler(async (req: Request, res: Respon
 })
 
 export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
-    // pass
-})
+    const { uuid } = req.params;
+
+    const existCourse = await prisma.course.findFirst({
+        where: {
+            uuid: uuid
+        }
+    });
+
+    if (!existCourse) {
+        res.status(404).json({ error: "Course Not Found" });
+        return
+    }
+
+    const deletedCourse = await prisma.course.delete({
+        where: {
+            id: existCourse.id
+        }
+    });
+
+    res.status(200).json({ message: "Course Deleted", deletedCourse });
+});
+
