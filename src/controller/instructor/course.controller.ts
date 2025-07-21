@@ -8,7 +8,9 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
     const search = req.query.search as string | undefined;
 
     const courses = await prisma.course.findMany({
-        
+          omit: {
+            id: true
+        },
         where: search ? {
             title: {
                 contains: search,
