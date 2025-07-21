@@ -45,31 +45,30 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
 
 export const updateCourse = expressAsyncHandler(async (req: Request, res: Response) => {
     const { uuid } = req.params
-    const { data } = req.body
+    const data = req.body
 
-    const existsCourse = await prisma.course.findUnique({
-        where: {
-            uuid: uuid
+    try {
+        const updatedCourse = await prisma.course.update({
+            where: {
+                uuid: uuid
+            },
+            data: {
+                ...data
+            }
+        })
+        res.status(200).json({
+            message: "Course Update",
+            updatedCourse
+        })
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+                res.status(404).json({ error: 'No Course Found' })
+            }
         }
-    })
-
-    if (!existsCourse) {
-        res.status(404).json({ message: "Course Not Found" })
+        throw error
     }
 
-    const updatedCourse = await prisma.course.update({
-        where: {
-            uuid: uuid
-        },
-        data: {
-            ...data
-        }
-    })
-
-    res.status(200).json({
-        message: "Course Update",
-        updateCourse
-    })
 
 })
 
