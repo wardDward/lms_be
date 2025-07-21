@@ -60,7 +60,7 @@ model Role {
 
 model Course {
   id           Int            @id @default(autoincrement())
-  uuid         String         @default(uuid())
+  uuid         String         @default(uuid()) @unique
   title        String
   description  String?        
   thumbnail    String?
