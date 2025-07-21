@@ -75,6 +75,7 @@ model Course {
   deleted_at   DateTime?
 
   @@map("tbl_courses")
+  @@fulltext([title])
 }
 
 model CourseRating {
