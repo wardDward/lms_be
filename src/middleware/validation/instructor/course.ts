@@ -22,8 +22,8 @@ const lessonSchema = z.object({
 
 const courseSchema = z.object({
     title: z.string().min(1, 'Title is required'),
-    description: z.string().nullable(),
-    thumbnail: z.string().nullable(),
+    description: z.string().trim().transform((val) => val === "" ? null : val).nullable(),
+    thumbnail: z.string().trim().transform((val) => val === "" ? null : val).nullable(),
     price: z.preprocess(
         (val) => typeof val === "string" ? parseFloat(val) : val,
         z.number().min(0, 'Price must be a positive number').default(0)

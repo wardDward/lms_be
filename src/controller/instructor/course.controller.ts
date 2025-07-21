@@ -12,7 +12,8 @@ export const getCourses = expressAsyncHandler(async (req: Request, res: Response
 })
 
 export const createCourse = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { data } = req.body
+    const data = req.body
+    
     const course = await prisma.course.create({
         data: {
             title: data.title,
