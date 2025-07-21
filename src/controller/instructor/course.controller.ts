@@ -1,16 +1,20 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "../../../generated/prisma";
 import expressAsyncHandler from "express-async-handler";
+import { Prisma } from "../../../generated/prisma";
 
-
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+    omit: {
+        course: {
+            id: true
+        }
+    }
+})
 export const getCourses = expressAsyncHandler(async (req: Request, res: Response) => {
     const search = req.query.search as string | undefined;
 
     const courses = await prisma.course.findMany({
-          omit: {
-            id: true
-        },
+
         where: search ? {
             title: {
                 contains: search,
@@ -40,29 +44,51 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
 })
 
 export const updateCourse = expressAsyncHandler(async (req: Request, res: Response) => {
-    // pass
-})
+    const { uuid } = req.params
+    const { data } = req.body
 
-export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { uuid } = req.params;
-
-    const existCourse = await prisma.course.findFirst({
+    const existsCourse = await prisma.course.findUnique({
         where: {
             uuid: uuid
         }
-    });
+    })
 
-    if (!existCourse) {
-        res.status(404).json({ error: "Course Not Found" });
-        return
+    if (!existsCourse) {
+        res.status(404).json({ message: "Course Not Found" })
     }
 
-    const deletedCourse = await prisma.course.delete({
+    const updatedCourse = await prisma.course.update({
         where: {
-            id: existCourse.id
+            uuid: uuid
+        },
+        data: {
+            ...data
         }
-    });
+    })
 
-    res.status(200).json({ message: "Course Deleted", deletedCourse });
+    res.status(200).json({
+        message: "Course Update",
+        updateCourse
+    })
+
+})
+
+export const deleteCourse = expressAsyncHandler(async (req: Request, res: Response): Promise<any> => {
+    const { uuid } = req.params;
+
+    try {
+        const deletedCourse = await prisma.course.delete({
+            where: { uuid }
+        });
+
+        res.status(200).json({ message: "Course Deleted", deletedCourse });
+
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+                res.status(404).json({ error: "No Course Found" })
+            }
+        }
+        throw error
+    }
 });
-
