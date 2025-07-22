@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { showLesson } from "../../controller/instructor/lesson.controller";
+import { showLessons } from "../../controller/instructor/lesson.controller";
 
 
 const lessonRouter = Router()
 
 
-lessonRouter.route('/:uuid').get(showLesson)
+lessonRouter.route('/').get(showLessons)
 
 export default lessonRouter
