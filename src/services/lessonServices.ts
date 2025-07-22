@@ -1,43 +1,41 @@
 import { PrismaClient } from "../../generated/prisma";
 
+const prisma = new PrismaClient();
 
-const prisma = new PrismaClient()
-export const createLeasons = async (lessons: any[], courseId: string) => {
-    const createdLessons = [];
+export const createLessons = async (lessons: any[], course_id: number) => {
+    const lessonWithAttachments: any[] = [];
 
-    for (const les of lessons) {
-        const lesson = await prisma.lesson.create({
-            data: {
-                lesson_number: les.lesson_number,
-                title: les.title,
-                content: les.content,
-                course: {
-                    connect: { id: courseId }
-                }
-            },
-        });
-
-        let attachments = [];
-        if (les.attachments && les.attachments.length > 0) {
-            attachments = await Promise.all(les.attachments.map((att: any) => {
-                return prisma.mediaAttachments.create({
+    await Promise.all(
+        lessons.map(async (les) => {
+            return await prisma.$transaction(async (tx) => {
+                const lesson = await tx.lesson.create({
                     data: {
-                        order: att.order,
-                        path: att.path,
-                        name: att.name,
-                        lesson: {
-                            connect: { id: lesson.id }
-                        }
+                        title: les.title,
+                        content: les.content,
+                        lesson_number: les.lesson_number,
+                        course: { connect: { id: course_id } }
                     }
                 });
-            }));
-        }
 
-        createdLessons.push({
-            ...lesson,
-            attachments,
-        });
-    }
+                let attachments: any[] = [];
 
-    return createdLessons;
+                if (les.attachments && les.attachments.length > 0) {
+                    await tx.mediaAttachments.createMany({
+                        data: les.attachments.map((att: any) => ({
+                            order: att.order,
+                            path: att.path,
+                            name: att.name,
+                            lesson_id: lesson.id
+                        }))
+                    });
+
+                    attachments = les.attachments;
+                }
+
+                lessonWithAttachments.push({ lesson, attachments });
+            });
+        })
+    );
+
+    return lessonWithAttachments;
 };
