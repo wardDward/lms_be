@@ -99,6 +99,7 @@ model Lesson {
   updated_at    DateTime           @default(now())
 
   @@map("tbl_lessons")
+  @@fulltext([title])
 }
 
 model MediaAttachments {

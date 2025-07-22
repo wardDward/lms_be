@@ -12,6 +12,6 @@ courseRouter.route('/')
     .get(getCourses)
     .post(validateCourse, createCourse)
 
-courseRouter.route('/:uuid').delete(deleteCourse).put(updateCourse)
+courseRouter.route('/:uuid').delete(deleteCourse).put(validateCourse, updateCourse)
 
 export default courseRouter
