@@ -2,19 +2,16 @@ import { Request, Response } from "express";
 import { PrismaClient } from "../../../generated/prisma";
 import expressAsyncHandler from "express-async-handler";
 import { Prisma } from "../../../generated/prisma";
+import { createLessons } from "../../services/lessonServices";
 
-const prisma = new PrismaClient({
-    omit: {
-        course: {
-            id: true
-        }
-    }
-})
+const prisma = new PrismaClient()
 export const getCourses = expressAsyncHandler(async (req: Request, res: Response) => {
     const search = req.query.search as string | undefined;
 
     const courses = await prisma.course.findMany({
-
+        omit: {
+            id: true
+        },
         where: search ? {
             title: {
                 contains: search,
@@ -39,6 +36,10 @@ export const createCourse = expressAsyncHandler(async (req: Request, res: Respon
             user: { connect: { id: req.user.id } }
         }
     })
+
+    if(data.lessons.length > 0){
+        await createLessons(data.lessons, course.id)
+    }
 
     res.json(course)
 })

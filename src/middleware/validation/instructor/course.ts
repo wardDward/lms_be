@@ -29,7 +29,7 @@ const courseSchema = z.object({
         z.number().min(0, 'Price must be a positive number').default(0)
     ),
     is_published: z.boolean().default(false),
-    lessons: z.array(lessonSchema),
+    lessons: z.array(lessonSchema).optional(),
 })
 
 
