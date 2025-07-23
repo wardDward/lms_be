@@ -1,5 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
-import { PrismaClient } from "../../../generated/prisma";
+import { Prisma, PrismaClient } from "../../../generated/prisma";
 import { Request, Response } from "express";
 
 
@@ -24,4 +24,21 @@ export const showLessons = expressAsyncHandler(async (req: Request, res: Respons
     })
 
     res.json(lesson)
+})
+
+export const deleteLesson = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { uuid } = req.params
+    try {
+        await prisma.lesson.delete({
+            where: { uuid }
+        })
+        res.status(200).json({ message: 'Lesson deleted succesfully' })
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+                res.status(404).json({ error: "Lesson Not Found" })
+            }
+        }
+        throw error
+    }
 })

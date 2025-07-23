@@ -39,3 +39,6 @@ export const createLessons = async (lessons: any[], course_id: number) => {
 
     return lessonWithAttachments;
 };
+
+
+// create service that will update only the lesson numbers
