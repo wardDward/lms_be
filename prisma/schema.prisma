@@ -96,7 +96,7 @@ model Lesson {
   content       String
   attachments   MediaAttachments[]
   created_at    DateTime           @default(now())
-  updated_at    DateTime           @default(now())
+  updated_at    DateTime           @default(now()) @updatedAt
 
   @@map("tbl_lessons")
   @@fulltext([title])

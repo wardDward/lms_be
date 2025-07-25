@@ -43,20 +43,56 @@ export const deleteLesson = expressAsyncHandler(async (req: Request, res: Respon
     }
 })
 
+// NOTE: handling file later
 export const updateLesson = expressAsyncHandler(async (req: Request, res: Response) => {
     const { uuid } = req.params
-    const data = req.body
+    const { attachments, ...lesssonInput } = req.body
     try {
-        // missing inclusion of updating of attachments
-        await prisma.lesson.update({
+        const lesson = await prisma.lesson.update({
             where: { uuid },
-            data: { ...data },
+            data: {
+                lesson_number: lesssonInput.lesson_number,
+                title: lesssonInput.title,
+                content: lesssonInput.content,
+             },
             select: {
+                id: true,
                 lesson_number: true,
                 title: true,
                 content: true,
             }
         })
+
+        // check first if attachments belongs to lessons
+        
+        // if attachment will be updated
+        if (attachments && Array.isArray(attachments)) {
+            for (const attachemnt of attachments) {
+                if (attachemnt.uuid) {
+                    // update existings
+                    await prisma.mediaAttachments.update({
+                        where: { uuid: attachemnt.uuid },
+                        data: {
+                            order: attachemnt.order,
+                            path: attachemnt.path,
+                            name: attachemnt.name
+                        }
+                    })
+                } else {
+                    // create 
+                    await prisma.mediaAttachments.create({
+                        data: {
+                            order: attachemnt.order,
+                            path: attachemnt.path,
+                            name: attachemnt.name,
+                            lesson: {connect: {id: lesson.id}}
+                        }
+                    })
+                }
+            }
+        }
+
+
         res.status(200).json({ message: 'Lesson updated succesfully' })
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
