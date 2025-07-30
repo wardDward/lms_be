@@ -52,9 +52,7 @@ export const updateCourse = expressAsyncHandler(async (req: Request, res: Respon
 
     try {
         const updatedCourse = await prisma.course.update({
-            where: {
-                uuid: uuid
-            },
+            where: { uuid, user_id: req.user.id },
             data: {
                 ...data
             }
@@ -80,7 +78,7 @@ export const deleteCourse = expressAsyncHandler(async (req: Request, res: Respon
 
     try {
         const deletedCourse = await prisma.course.delete({
-            where: { uuid }
+            where: { uuid, user_id: req.user.id }
         });
 
         res.status(200).json({ message: "Course Deleted", deletedCourse });
