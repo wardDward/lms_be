@@ -4,7 +4,6 @@ import { deleteLesson, showLessons, updateLesson } from "../../controller/instru
 
 const lessonRouter = Router()
 
-
 lessonRouter.route('/').get(showLessons)
 lessonRouter.route('/:uuid').delete(deleteLesson).put(updateLesson)
 

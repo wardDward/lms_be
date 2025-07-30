@@ -29,8 +29,10 @@ export const showLessons = expressAsyncHandler(async (req: Request, res: Respons
 export const deleteLesson = expressAsyncHandler(async (req: Request, res: Response) => {
     const { uuid } = req.params
     try {
+        // check first if lesson belongs to user
         await prisma.lesson.delete({
-            where: { uuid }
+            where: { uuid },
+            
         })
         res.status(200).json({ message: 'Lesson deleted succesfully' })
     } catch (error) {
@@ -44,62 +46,89 @@ export const deleteLesson = expressAsyncHandler(async (req: Request, res: Respon
 })
 
 // NOTE: handling file later
+
 export const updateLesson = expressAsyncHandler(async (req: Request, res: Response) => {
     const { uuid } = req.params
-    const { attachments, ...lesssonInput } = req.body
-    try {
-        const lesson = await prisma.lesson.update({
+    const { attachments, ...lessonInput } = req.body
+
+    try {   
+        
+        const lesson = await prisma.lesson.findUnique({
             where: { uuid },
-            data: {
-                lesson_number: lesssonInput.lesson_number,
-                title: lesssonInput.title,
-                content: lesssonInput.content,
-             },
-            select: {
-                id: true,
-                lesson_number: true,
-                title: true,
-                content: true,
+            select: { id: true },
+        })
+
+        if (!lesson) {
+            res.status(404).json({ message: 'Lesson not found' })
+            return
+        }
+
+        await prisma.$transaction(async (tx) => {
+            // Update lesson
+            await tx.lesson.update({
+                where: { uuid },
+                data: {
+                    lesson_number: lessonInput.lesson_number,
+                    title: lessonInput.title,
+                    content: lessonInput.content,
+                },
+            })
+
+            if (attachments && Array.isArray(attachments)) {
+                for (const attachment of attachments) {
+                    if (attachment.uuid) {
+                        const existing = await tx.mediaAttachments.findFirst({
+                            where: {
+                                uuid: attachment.uuid,
+                                lesson_id: lesson.id,
+                            },
+                        })
+
+                        console.log('Checking attachment:', {
+                            uuid: attachment.uuid,
+                            lessonId: lesson.id,
+                            found: !!existing,
+                        })
+
+                        if (existing) {
+                            await tx.mediaAttachments.update({
+                                where: { uuid: attachment.uuid },
+                                data: {
+                                    order: attachment.order,
+                                    path: attachment.path,
+                                    name: attachment.name,
+                                },
+                            })
+                        } else {
+                            throw new Error(`Attachment ${attachment.uuid} does not belong to lesson ${lesson.id}`)
+                        }
+                    } else {
+                        // Create new attachment
+                        await tx.mediaAttachments.create({
+                            data: {
+                                order: attachment.order,
+                                path: attachment.path,
+                                name: attachment.name,
+                                lesson: { connect: { id: lesson.id } },
+                            },
+                        })
+                    }
+                }
             }
         })
 
-        // check first if attachments belongs to lessons
-        
-        // if attachment will be updated
-        if (attachments && Array.isArray(attachments)) {
-            for (const attachemnt of attachments) {
-                if (attachemnt.uuid) {
-                    // update existings
-                    await prisma.mediaAttachments.update({
-                        where: { uuid: attachemnt.uuid },
-                        data: {
-                            order: attachemnt.order,
-                            path: attachemnt.path,
-                            name: attachemnt.name
-                        }
-                    })
-                } else {
-                    // create 
-                    await prisma.mediaAttachments.create({
-                        data: {
-                            order: attachemnt.order,
-                            path: attachemnt.path,
-                            name: attachemnt.name,
-                            lesson: {connect: {id: lesson.id}}
-                        }
-                    })
-                }
-            }
-        }
 
+        res.status(200).json({ message: 'Lesson and attachments updated successfully' })
 
-        res.status(200).json({ message: 'Lesson updated succesfully' })
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2025") {
-                res.status(404).json({ error: "Lesson Not Found" })
-            }
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            res.status(404).json({ error: 'Lesson not found' })
         }
+
+        if (error instanceof Error && error.message.includes('does not belong')) {
+            res.status(403).json({ error: error.message })
+        }
+
         throw error
     }
 })
