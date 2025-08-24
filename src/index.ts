@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import errorHandler from './middleware/globalErrorhandler'
 import apiRouter from './routes/api'
-import { boolean } from 'zod'
 
 dotenv.config()
 

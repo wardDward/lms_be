@@ -52,14 +52,14 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     })
 
     if (!user) {
-        res.status(401).json({ message: "Invalid credentials" })
+        res.status(401).json({ errors: "Invalid credentials" })
         return
     }
 
     const checkedPassword = await bcrypt.compare(data.password, user.password)
 
     if (!checkedPassword) {
-        res.status(422).json({ message: "Invalid credentials" })
+        res.status(422).json({ errors: "Invalid credentials" })
     }
 
     const accessToken = generateAccessToken(user.id)
