@@ -10,7 +10,7 @@ const prisma = new PrismaClient()
 
 export const register = expressAsyncHandler(async (req: Request, res: Response) => {
 
-    const {role_uuid: _role, ...userData} = req.body
+    const { role_uuid: _role, ...userData } = req.body
     const existEmail = await prisma.user.findUnique({
         where: { email: userData.email }
     })
@@ -24,9 +24,9 @@ export const register = expressAsyncHandler(async (req: Request, res: Response) 
             uuid: _role
         }
     })
-    
-    if(!roleExists){
-        res.status(404).json({errors: "Role not found"})
+
+    if (!roleExists) {
+        res.status(404).json({ errors: "Role not found" })
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10)
@@ -52,14 +52,20 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
     })
 
     if (!user) {
-        res.status(401).json({ errors: "Invalid credentials" })
+        res.status(401).json({
+            errors: 
+                { email: ["Invalid credentials"] }
+        })
         return
     }
 
     const checkedPassword = await bcrypt.compare(data.password, user.password)
 
     if (!checkedPassword) {
-        res.status(422).json({ errors: "Invalid credentials" })
+        res.status(422).json({
+            errors: 
+                { email: ["Invalid credentials"] }
+        })
     }
 
     const accessToken = generateAccessToken(user.id)
