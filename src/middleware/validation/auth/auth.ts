@@ -30,7 +30,22 @@ export const registrationValidation = (req: Request, res: Response, next: NextFu
 
 // login
 const loginSchema = z.object({
-    email: z.string().min(1, 'Email is required').email(),
+    email: z.string().superRefine((val, ctx) => {
+        if(val.trim().length === 0 || !val){
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Email is Required'
+            })
+            return
+        }
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Invalid Email'
+            })
+            return
+        }
+    }),
     password: z.string().min(1, 'Password is required')
 })
 
