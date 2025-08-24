@@ -84,7 +84,9 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         secure: true,
         sameSite: 'none'
     })
-    res.json(accessToken)
+    res.json({
+        accessToken: accessToken
+    })
 })
 
 

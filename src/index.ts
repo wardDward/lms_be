@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import errorHandler from './middleware/globalErrorhandler'
 import apiRouter from './routes/api'
+import { boolean } from 'zod'
 
 dotenv.config()
 
@@ -13,7 +14,7 @@ const port = process.env.PORT || 8000
 
 const corsOptions = {
     credentials: true,
-    origin: ['http://localhost:5173']
+    origin: [process.env.FRONTEND_URL || 'http://localhost:3000']
 }
 
 app.use(cors(corsOptions))
