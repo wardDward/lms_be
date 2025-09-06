@@ -16,7 +16,7 @@ export const register = expressAsyncHandler(async (req: Request, res: Response) 
     })
 
     if (existEmail) {
-        throw new Error('Email is already exists.')
+        res.status(422).json({ email: ['Email already exists.'] })
     }
 
     const roleExists = await prisma.role.findFirst({
@@ -49,11 +49,12 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
     const user = await prisma.user.findUnique({
         where: { email: data.email },
+        include: { role: true }
     })
 
     if (!user) {
         res.status(401).json({
-            errors: 
+            errors:
                 { email: ["Invalid credentials"] }
         })
         return
@@ -63,7 +64,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
     if (!checkedPassword) {
         res.status(422).json({
-            errors: 
+            errors:
                 { email: ["Invalid credentials"] }
         })
     }
@@ -79,19 +80,29 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         }
     })
 
-    res.cookie("accessToken", accessToken, {
+    res.cookie("Authorization", accessToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none'
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'strict',
+        path: '/'
     })
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none'
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'strict',
+        path: '/'
     })
+
+    res.cookie("Role", user.role.name, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: '/'
+    });
+
     res.json({
-        accessToken: accessToken
+        accessToken: accessToken,
     })
 })
 

@@ -15,18 +15,19 @@ datasource db {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  uuid           String          @unique @default(uuid())
-  firstname      String
-  middlename     String?
-  lastname       String
-  email          String          @unique
-  password       String
-  age            Int
-  birth_day      DateTime
-  contact        String
-  gender         String
-  role_id        Int
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid())
+  firstname  String
+  middlename String?
+  lastname   String
+  email      String   @unique
+  password   String
+  age        Int
+  birth_day  DateTime
+  contact    String
+  gender     String
+  role_id    Int
+  role       Role     @relation(fields: [role_id], references: [id])
   created_at     DateTime        @default(now())
   updated_at     DateTime        @default(now())
   personal_token PersonalToken[]
@@ -53,6 +54,7 @@ model Role {
   name        String
   description String?
   created_at  DateTime @default(now())
+  User        User[]
 
   @@map("tbl_roles")
 }
@@ -88,7 +90,7 @@ model CourseRating {
 
 model Lesson {
   id            Int                @id @default(autoincrement())
-  uuid          String             @default(uuid()) @unique
+  uuid          String             @unique @default(uuid())
   course_id     Int
   course        Course             @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   lesson_number Int
@@ -98,8 +100,8 @@ model Lesson {
   created_at    DateTime           @default(now())
   updated_at    DateTime           @default(now()) @updatedAt
 
-  @@map("tbl_lessons")
   @@fulltext([title])
+  @@map("tbl_lessons")
 }
 
 model MediaAttachments {
