@@ -80,7 +80,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         }
     })
 
-    res.cookie("Authorization", accessToken, {
+    res.cookie("access_token", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: 'strict',
