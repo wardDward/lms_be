@@ -69,6 +69,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         })
     }
 
+
     const accessToken = generateAccessToken(user.id)
     const refreshToken = generateRefreshToken(user.id)
 
@@ -80,26 +81,22 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         }
     })
 
-    res.cookie("access_token", accessToken, {
+    res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: 'strict',
-        path: '/'
+        path: '/',
+        maxAge: 5 * 1000 // 5 seconds
     })
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "prodn",
         sameSite: 'strict',
-        path: '/'
-    })
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 
-    res.cookie("Role", user.role.name, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        path: '/'
-    });
+    })
 
     res.json({
         accessToken: accessToken,
@@ -109,43 +106,43 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
 export const refreshToken = expressAsyncHandler(async (req: Request, res: Response) => {
     const oldToken = req.cookies.refreshToken
-
     if (!oldToken) {
         res.status(401).json({ message: 'Unauthorized' })
         return
     }
 
     jwt.verify(oldToken, process.env.REFRESH_TOKEN!, async (err: any, decoded: any) => {
-        if (err || !decoded?.id) {
-            res.clearCookie('refreshToken')
-            return res.status(401).json({ message: 'Invalid token.' })
+        if (err || !decoded?.sub) {
+            res.clearCookie('refreshToken', { path: '/' })
+            return res.status(403).json({ message: 'Invalid token.' })
         }
 
         const tokenDoc = await prisma.personalToken.findFirst({
             where: {
-                user_id: decoded.id,
+                user_id: decoded.sub,
                 token: oldToken
             }
         })
 
         if (!tokenDoc) {
-            res.clearCookie('refreshToken')
+            res.clearCookie('refreshToken', { path: '/' })
             return res.status(401).json({ message: 'refresh token cannot be found.' })
         }
 
         // check expiration
         if (new Date() > tokenDoc.expired_at) {
             await prisma.personalToken.delete({ where: { id: tokenDoc.id, } })
-            res.clearCookie('refreshToken')
+            res.clearCookie('refreshToken', { path: '/' })
             return res.status(401).json({ message: 'refresh token expired.' })
         }
 
         const newAccessToken = generateAccessToken(decoded)
         const newRefreshToken = generateRefreshToken(decoded)
 
+        await prisma.personalToken.delete({ where: { id: tokenDoc.id } });
         await prisma.personalToken.create({
             data: {
-                user_id: decoded.id,
+                user_id: decoded.sub,
                 token: newRefreshToken,
                 expired_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
             }
@@ -153,10 +150,10 @@ export const refreshToken = expressAsyncHandler(async (req: Request, res: Respon
 
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none'
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
         })
 
-        res.json(newAccessToken)
+        res.json({ accessToken: newAccessToken })
     })
 })
